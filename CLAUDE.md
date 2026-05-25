@@ -8,22 +8,22 @@ React 19 + TypeScript + Vite 기반 노트 CRUD 앱. 백엔드는 json-server(�
 
 ## 명령어
 
-| 명령어 | 설명 |
-|--------|------|
-| `npm run dev` | 프론트(Vite) + json-server 동시 실행 |
-| `npm run build` | `tsc && vite build` 프로덕션 빌드 |
-| `npm run lint` | ESLint (`--fix` 포함) |
-| `npm run format` | Prettier 포맷 |
-| `npm test` | vitest run (단일 실행) |
-| `npm run test:watch` | vitest watch 모드 |
-| `npx vitest run src/path/to/file.test.ts` | 단일 테스트 파일 실행 |
+| 명령어                                    | 설명                                 |
+| ----------------------------------------- | ------------------------------------ |
+| `npm run dev`                             | 프론트(Vite) + json-server 동시 실행 |
+| `npm run build`                           | `tsc && vite build` 프로덕션 빌드    |
+| `npm run lint`                            | ESLint (`--fix` 포함)                |
+| `npm run format`                          | Prettier 포맷                        |
+| `npm test`                                | vitest run (단일 실행)               |
+| `npm run test:watch`                      | vitest watch 모드                    |
+| `npx vitest run src/path/to/file.test.ts` | 단일 테스트 파일 실행                |
 
 ## 개발 환경
 
 - 앱: http://localhost:5173
 - API: http://localhost:3001/notes
 - 테스트: vitest + jsdom + @testing-library/react, 설정은 `vite.config.ts`의 `test` 블록
-- 스타일: Tailwind CSS v4 (`@tailwindcss/vite` 플러그인)
+- 스타일: Tailwind CSS v4 (`@tailwindcss/vite` 플러그인). 디자인 시스템은 `design-system` 스킬이 자동 로드. PostToolUse Hook(`scripts/check-design-system.js`)이 Edit/Write 시 색상·간격 위반을 자동 검수
 
 ## 아키텍처
 
@@ -82,8 +82,15 @@ App (selectedNoteId, isCreating 상태 관리)
 - **상태 변수**: camelCase, boolean은 `is`/`has` 접두사 (예: `isCreating`, `isSelected`).
 - **CSS 커스텀 속성**: `--color-{역할}`, `--font-{용도}` (예: `--color-muted-foreground`, `--font-display`).
 
+## 커밋 규칙
+
+- **형식**: Conventional Commits — `type: 설명` 또는 `type(scope): 설명`
+- **허용 type**: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `style`, `ci`, `perf`, `build`
+- **본문 필수**: 제목 아래 빈 줄 후 본문 작성 필요
+- **검증 도구**: husky + commitlint (`commitlint.config.mjs`), pre-commit은 lint-staged 실행
+
 ## 일관성 없는 패턴 (주의)
 
 1. **에러 처리 방식 혼재**: Context의 `fetchNotes` 실패는 `error` state로 관리하지만, `createNote`/`updateNote`/`deleteNote` 실패는 error state를 갱신하지 않고 예외를 그대로 throw. 컴포넌트에서 `console.error`로 처리.
-3. **App만 default export**: 다른 모든 컴포넌트는 named export인데 `App.tsx`만 `export default`. Vite의 엔트리 관례를 따른 것이나 프로젝트 내 일관성과는 다름.
-4. **useEffect 의존성 배열 lint 억제**: NoteEditor의 `useEffect`에서 `selectedNote`를 deps에서 제외하고 `// eslint-disable-line`으로 경고 억제 중. 의도적이나 잠재적 동기화 버그 가능성 있음.
+2. **App만 default export**: 다른 모든 컴포넌트는 named export인데 `App.tsx`만 `export default`. Vite의 엔트리 관례를 따른 것이나 프로젝트 내 일관성과는 다름.
+3. **useEffect 의존성 배열 lint 억제**: NoteEditor의 `useEffect`에서 `selectedNote`를 deps에서 제외하고 `// eslint-disable-line`으로 경고 억제 중. 의도적이나 잠재적 동기화 버그 가능성 있음.
