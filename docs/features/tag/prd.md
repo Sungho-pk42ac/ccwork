@@ -31,26 +31,59 @@
 
 ## 3. 기술 결정
 
-### ADR-001: Note 타입 확장 방식
+### 3.1 전체 아키텍처: Hook Extraction 패턴 채택
 
-- **Context**: TODO
-- **Decision**: TODO
-- **Alternatives**: TODO
-- **Consequences**: TODO
+**Context** — 태그 기능을 기존 노트 CRUD에 통합해야 한다. 태그에는 정규화(trim + lowercase), 중복 체크, 추가/삭제 등 고유 비즈니스 로직이 있어서 이 로직을 어디에 배치할지가 핵심 설계 결정이다. 선택지는 (A) NoteEditor에 직접 인라인, (B) 커스텀 훅 + 유틸 분리, (C) Context 레벨 액션 추가.
 
-### ADR-002: 태그 입력 컴포넌트 구조
+**Decision** — 안 B(Hook Extraction)를 채택한다. 태그 상태 관리를 `useTags` 커스텀 훅으로, 정규화/유효성 로직을 `src/utils/tagUtils.ts` 순수 함수로, 렌더링을 `TagInput` 프레젠테이션 컴포넌트로 분리한다.
 
-- **Context**: TODO
-- **Decision**: TODO
-- **Alternatives**: TODO
-- **Consequences**: TODO
+**Alternatives**
 
-### ADR-003: 태그 정규화 및 유효성 검증 위치
+- 안 A (Flat Integration): NoteEditor 내부에서 태그 state와 정규화를 모두 처리. 변경 파일이 적지만 정규화 로직이 컴포넌트에 묻혀 순수 함수 단위 테스트가 어렵다. Context `createNote` 시그니처를 `(title, content, tags)`로 변경해야 해서 기존 호출부에 영향.
+- 안 C (Context-Owned Tags): `addTagToNote`/`removeTagFromNote` 액션을 Context에 추가. 태그의 "저장 전 로컬 상태"와 "전역 상태" 간 동기화 복잡도가 증가하고, spec의 "태그만 별도 즉시 저장하지 않음" 원칙과 충돌 가능성이 있다. Context가 비대해져 단일 책임 원칙 위반.
 
-- **Context**: TODO
-- **Decision**: TODO
-- **Alternatives**: TODO
-- **Consequences**: TODO
+**Consequences**
+
+- 장점: 테스트 격리가 최고 수준 — `tagUtils`는 import만으로, `useTags`는 `renderHook`으로, `TagInput`은 props만으로 각각 독립 테스트 가능. Context 시그니처를 변경하지 않아 기존 코드 영향 최소화.
+- 단점: 프로젝트에 `src/utils/`와 `src/hooks/` 디렉토리가 새로 생긴다. 커스텀 훅 패턴이 처음 도입되므로 향후 다른 기능에서도 이 패턴을 따를지 합의가 필요하다.
+
+### 3.2 데이터 구조: Note.tags 필드 직접 추가
+
+**Context** — 태그 데이터를 어디에 저장할지 결정해야 한다. 별도 tags 테이블(또는 JSON 엔드포인트)을 만들 수도 있고, Note 객체에 필드를 추가할 수도 있다.
+
+**Decision** — `Note` 인터페이스에 `tags: string[]` 필드를 추가한다. 기존 노트(필드 없음)는 읽기 시 `note.tags ?? []`로 폴백 처리한다. db.json의 기존 데이터에도 `tags: []`를 추가한다.
+
+**Alternatives**
+
+- 별도 tags 엔드포인트 (`/tags`): json-server에 별도 리소스를 두고 noteId로 연결. 태그 필터링/검색에는 유리하지만 현재 scope는 CRUD만이고, API 호출이 2배로 늘어 복잡도 대비 이득이 없다.
+- Note.tags를 쉼표 구분 문자열로 저장: 파싱/직렬화 로직이 추가되고 배열 조작이 불편하다. json-server는 배열을 네이티브로 지원하므로 이유 없음.
+
+**Consequences**
+
+- 장점: 기존 `createNote`/`updateNote` API 함수를 그대로 사용할 수 있다. `Partial<Note>`으로 tags만 포함해 전송 가능. 데이터 모델이 단순하다.
+- 단점: 태그별 검색/필터링 시 클라이언트 사이드 필터링이 필요하다 (Out of Scope이므로 현재는 문제 아님). 태그가 많아지면 Note 객체가 커지지만, 글자 수 제한 없음이 spec이므로 수용.
+
+### 3.3 태그 로직 레이어 분리
+
+**Context** — 안 B 채택에 따라 태그 로직을 구체적으로 어느 레이어에 배치할지 정해야 한다. 정규화(`trim` + `toLowerCase`), 중복 판별, 상태 관리, 렌더링이 각각 다른 관심사다.
+
+**Decision** — 3개 레이어로 분리한다.
+
+| 레이어       | 파일                          | 책임                                             |
+| ------------ | ----------------------------- | ------------------------------------------------ |
+| 순수 유틸    | `src/utils/tagUtils.ts`       | `normalizeTag`, `isDuplicateTag` 등 순수 함수    |
+| 상태 훅      | `src/hooks/useTags.ts`        | `tags` state, `addTag`, `removeTag`, `resetTags` |
+| 프레젠테이션 | `src/components/TagInput.tsx` | 입력 필드 + 칩 렌더링 + 이벤트 위임              |
+
+**Alternatives**
+
+- 2레이어 (훅 + 컴포넌트, 유틸 없음): 정규화를 훅 안에 인라인. 동작은 같지만 `normalizeTag("  React  ")` 같은 순수 함수 테스트를 작성할 수 없다.
+- 1레이어 (컴포넌트에 전부): 가장 적은 파일 수. 하지만 로직 변경 시 UI 테스트를 함께 돌려야 해서 피드백 루프가 느리다.
+
+**Consequences**
+
+- 장점: TDD 최적 — `tagUtils`는 0ms 단위 테스트, `useTags`는 `renderHook` 테스트, `TagInput`은 렌더링 테스트로 각각 격리. 향후 태그 자동완성 등 확장 시 `useTags`만 수정하면 된다.
+- 단점: 파일 3개 추가. 현재 프로젝트 규모 대비 과분리로 느껴질 수 있으나, 테스트 용이성과 트레이드오프로 수용한다.
 
 ---
 
