@@ -89,6 +89,21 @@ App (selectedNoteId, isCreating 상태 관리)
 - **본문 필수**: 제목 아래 빈 줄 후 본문 작성 필요
 - **검증 도구**: husky + commitlint (`commitlint.config.mjs`), pre-commit은 lint-staged 실행
 
+## TDD 이슈 사이클
+
+새 이슈 작업 시 다음 순서를 따른다:
+
+1. `/test-scenarios N` — 시그니처 + 시나리오 (skill)
+2. `/tdd-red N` — 실패 테스트 작성 (skill)
+3. `/tdd-green N` — 최소 구현, 테스트 전체 통과 (skill)
+4. `@ac-verifier N` — AC 충족 독립 검증, 테스트 통과 ≠ AC 충족 (agent)
+5. `/tdd-refactor N` — 구조 개선, 깨지면 즉시 롤백 (skill)
+6. `/security-review N` — 타입·보안 점검 (skill)
+7. commit → PR --base feature/\<spec\> → squash merge → 이슈 클로즈
+
+각 단계는 인간 승인 게이트가 있다. **자동으로 다음 단계로 넘어가지 말 것.**
+이슈 의존성이 있으면 선행 이슈가 머지된 feature 브랜치에서 분기.
+
 ## 일관성 없는 패턴 (주의)
 
 1. **에러 처리 방식 혼재**: Context의 `fetchNotes` 실패는 `error` state로 관리하지만, `createNote`/`updateNote`/`deleteNote` 실패는 error state를 갱신하지 않고 예외를 그대로 throw. 컴포넌트에서 `console.error`로 처리.
