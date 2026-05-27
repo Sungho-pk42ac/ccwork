@@ -115,9 +115,15 @@ closes #{N}
 
 ## Step 4. E2E 테스트 실행
 
+CI와 동일한 범위를 로컬에서 실행한다.
+실행 전 `.github/workflows/ci.yml`의 e2e job `run:` 커맨드를 읽어 현재 CI 범위를 확인하고, 그대로 사용한다.
+
 ```bash
-npm run test:e2e
+# ci.yml e2e job의 run: 값을 그대로 실행 (현재 예시)
+npx playwright test e2e/notes.spec.ts
 ```
+
+> **왜 ci.yml을 읽는가**: Red 상태(UI 미구현)인 스펙 파일이 있을 경우, CI는 해당 파일을 제외하고 안정된 테스트만 실행한다. 로컬 게이트도 CI와 동일 범위여야 "CI 통과 = 로컬 게이트 통과"가 일관된다. 태그 UI 구현 완료 후 ci.yml에서 파일 지정을 제거하면 이 스킬도 자동으로 전체 범위를 실행하게 된다.
 
 ### 4-A. 테스트 통과 → Step 5로 진행
 
