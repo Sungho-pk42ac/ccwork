@@ -6,7 +6,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1, // DB 격리를 위해 단일 워커
-  reporter: 'list',
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }]]
+    : 'list',
 
   use: {
     baseURL: 'http://localhost:5173',
