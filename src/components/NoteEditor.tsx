@@ -40,9 +40,9 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
     setSaving(true);
     try {
       if (isCreating) {
-        await createNote(title, content);
+        await createNote(title, content, tags);
       } else if (selectedNoteId) {
-        await updateNote(selectedNoteId, { title, content });
+        await updateNote(selectedNoteId, { title, content, tags });
       }
       onDone();
     } catch (e) {

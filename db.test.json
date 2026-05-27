@@ -1,4 +1,13 @@
 {
-  "notes": [],
+  "notes": [
+    {
+      "title": "태그 전체 흐름",
+      "content": "",
+      "tags": ["초기태그"],
+      "createdAt": "2026-05-27T14:56:07.279Z",
+      "updatedAt": "2026-05-27T14:56:07.279Z",
+      "id": "7H2bCgifu9w"
+    }
+  ],
   "$schema": "./node_modules/json-server/schema.json"
 }
