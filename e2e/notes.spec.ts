@@ -112,7 +112,7 @@ test.describe('노트 읽기', () => {
   });
 
   test('선택한 노트 아이템이 강조(border) 처리된다', async ({ page, request }) => {
-    const [note] = await seedNotes(request, [{ title: '선택 강조 노트', content: '' }]);
+    await seedNotes(request, [{ title: '선택 강조 노트', content: '' }]);
 
     await page.goto('/');
 
