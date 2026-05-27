@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent, ChangeEvent } from 'react';
+import { useRef, useState, KeyboardEvent, ChangeEvent } from 'react';
 
 interface TagInputProps {
   tags: string[];
@@ -9,13 +9,19 @@ interface TagInputProps {
 /** 태그 입력 + 칩 표시 프레젠테이션 컴포넌트 */
 export function TagInput({ tags, onAddTag, onRemoveTag }: TagInputProps) {
   const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const submitTag = (value: string) => {
+    if (value.trim() === '') return;
+    onAddTag(value);
+    setInput('');
+    if (inputRef.current) inputRef.current.value = '';
+  };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      if (input.trim() === '') return;
-      onAddTag(input);
-      setInput('');
+      submitTag(e.currentTarget.value);
     }
   };
 
@@ -26,7 +32,9 @@ export function TagInput({ tags, onAddTag, onRemoveTag }: TagInputProps) {
       if (before.trim() !== '') {
         onAddTag(before);
       }
-      setInput(rest.join(','));
+      const remaining = rest.join(',');
+      setInput(remaining);
+      if (inputRef.current) inputRef.current.value = remaining;
     } else {
       setInput(value);
     }
@@ -40,9 +48,9 @@ export function TagInput({ tags, onAddTag, onRemoveTag }: TagInputProps) {
             <span
               key={tag}
               data-testid="tag-chip"
-              className="inline-flex items-center bg-[#dbe4e7] text-[#586064] rounded-full px-[0.75rem] py-[0.25rem] text-[0.75rem]"
+              className="tag-chip inline-flex items-center bg-[#dbe4e7] text-[#586064] rounded-full px-[0.75rem] py-[0.25rem] text-[0.75rem]"
             >
-              {tag}
+              <span>{tag}</span>
               <button
                 type="button"
                 aria-label={`${tag} 삭제`}
@@ -56,11 +64,12 @@ export function TagInput({ tags, onAddTag, onRemoveTag }: TagInputProps) {
         </div>
       )}
       <input
+        ref={inputRef}
         type="text"
         value={input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="태그 입력"
+        placeholder="태그를 입력하세요..."
         className="w-full bg-white border border-[rgba(171,179,183,0.15)] rounded-lg px-[0.7rem] py-[0.35rem] text-sm text-[#2b3437] outline-none focus:border-[#0053dc]"
       />
     </div>
