@@ -10,7 +10,7 @@ description: "승인된 테스트 시나리오(issue-{N}.md)를 실패하는 테
 
 ## 입력
 
-`$ARGUMENTS` = issues.md 내부 이슈 번호 (예: `1`)
+`$ARGUMENTS` = GitHub 이슈 번호 (예: `6`)
 
 ## 왜 Red 단계가 중요한가
 

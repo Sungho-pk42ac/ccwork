@@ -34,6 +34,18 @@ export function NoteItem({ note, isSelected, onSelect, onDelete }: NoteItemProps
       <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
         {note.content || '(내용 없음)'}
       </p>
+      {note.tags && note.tags.length > 0 && (
+        <div className="flex flex-wrap gap-[0.35rem] mt-2">
+          {note.tags.map((tag) => (
+            <span
+              key={tag}
+              className="note-label inline-flex items-center bg-[#dbe4e7] text-[#586064] rounded-full px-[0.5rem] py-[0.1rem] text-[0.65rem]"
+            >
+              <span>{tag}</span>
+            </span>
+          ))}
+        </div>
+      )}
       <p className="text-[10px] text-muted-foreground/70 mt-2">
         {new Date(note.updatedAt).toLocaleDateString('ko-KR')}
       </p>
