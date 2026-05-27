@@ -50,22 +50,22 @@
 
 ### 정상 (Happy Path)
 
-- [정상] Note 인터페이스 — should have `tags` field of type `string[]` when interface is defined
-- [정상] fetchNotes 폴백 — should return notes with `tags` as empty array when db note has `tags: []`
-- [정상] createNote — should include `tags: []` in request body when creating a new note
-- [정상] db.json — should have `tags: []` on all existing notes when data migration is applied
+- [x] [정상] Note 인터페이스 — should have `tags` field of type `string[]` when interface is defined
+- [x] [정상] fetchNotes 폴백 — should return notes with `tags` as empty array when db note has `tags: []`
+- [x] [정상] createNote — should include `tags: []` in request body when creating a new note
+- [x] [정상] db.json — should have `tags: []` on all existing notes when data migration is applied
 
 ### 경계 (Boundary)
 
-- [경계] fetchNotes 폴백 — should fallback to empty array when note.tags is `undefined`
-- [경계] fetchNotes 폴백 — should fallback to empty array when note.tags is `null`
-- [경계] fetchNotes 폴백 — should preserve existing tags when note has `tags: ["react"]`
-- [경계] createNote — should send `tags: []` when tags parameter is an empty array
+- [x] [경계] fetchNotes 폴백 — should fallback to empty array when note.tags is `undefined`
+- [x] [경계] fetchNotes 폴백 — should fallback to empty array when note.tags is `null`
+- [x] [경계] fetchNotes 폴백 — should preserve existing tags when note has `tags: ["react"]`
+- [x] [경계] createNote — should send `tags: []` when tags parameter is an empty array
 
 ### 예외 (Exception)
 
-- [예외] fetchNotes — should not throw runtime error when iterating over notes without tags field
-- [예외] 기존 테스트 — should pass all existing test suites without modification after Note type change
+- [x] [예외] fetchNotes — should not throw runtime error when iterating over notes without tags field
+- [x] [예외] 기존 테스트 — should pass all existing test suites without modification after Note type change
 
 ---
 
