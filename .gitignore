@@ -17,6 +17,14 @@ dist-ssr/
 .env.local
 .env.*.local
 
+# Claude Code
+.claude/settings.local.json
+
+# Playwright
+test-results/
+playwright-report/
+screenshot*.png
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

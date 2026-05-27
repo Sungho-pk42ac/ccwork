@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes App Architecture</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --tab-bg: #e5e7eb;
+      --tab-active: #ffffff;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: #334155;
+      --accent: #60a5fa;
+      --accent-hover: #3b82f6;
+      --tab-bg: #334155;
+      --tab-active: #1e293b;
+      --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Pretendard Variable', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    header h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header h1 span { color: var(--accent); }
+
+    .theme-toggle {
+      background: var(--tab-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 0.625rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 1.5rem 2rem 0;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tab {
+      padding: 0.65rem 1.25rem;
+      border-radius: 0.625rem 0.625rem 0 0;
+      background: var(--tab-bg);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: var(--text); }
+
+    .tab.active {
+      background: var(--card);
+      color: var(--accent);
+      border-bottom: 2px solid var(--card);
+      margin-bottom: -1px;
+    }
+
+    .content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 2rem;
+    }
+
+    .panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0 0.75rem 0.75rem 0.75rem;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel.active { display: block; }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .panel p.desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .mermaid {
+      display: block;
+      text-align: center;
+      overflow-x: auto;
+      padding: 1rem 0;
+    }
+
+    .mermaid svg { max-width: 100%; height: auto; }
+
+    .legend {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><span>Notes App</span> Architecture</h1>
+  <button class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab(0)">Import Dependencies</button>
+  <button class="tab" onclick="showTab(1)">Component Tree</button>
+  <button class="tab" onclick="showTab(2)">State Flow</button>
+</div>
+
+<div class="content">
+
+  <!-- Tab 1: Import Dependencies -->
+  <div class="panel active" id="panel-0">
+    <h2>Import Dependencies</h2>
+    <p class="desc">각 소스 파일 간의 import 관계를 보여줍니다. 화살표는 "A가 B를 import한다"를 의미합니다.</p>
+    <pre class="mermaid">
+flowchart LR
+  subgraph G1["types/"]
+    f_note["note.ts"]
+  end
+
+  subgraph G2["api/"]
+    f_api["notes.ts"]
+  end
+
+  subgraph G3["context/"]
+    f_ctx["NotesContext.tsx"]
+  end
+
+  subgraph G4["components/"]
+    f_layout["Layout.tsx"]
+    f_list["NoteList.tsx"]
+    f_editor["NoteEditor.tsx"]
+    f_item["NoteItem.tsx"]
+  end
+
+  f_app["App.tsx"]
+  f_main["main.tsx"]
+
+  f_api --> f_note
+  f_ctx --> f_note
+  f_ctx --> f_api
+  f_item --> f_note
+
+  f_app --> f_ctx
+  f_app --> f_layout
+  f_app --> f_list
+  f_app --> f_editor
+
+  f_list --> f_ctx
+  f_list --> f_item
+  f_editor --> f_ctx
+
+  f_main --> f_app
+
+  style G1 fill:#fef3c7,stroke:#f59e0b,color:#92400e
+  style G2 fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+  style G3 fill:#ede9fe,stroke:#8b5cf6,color:#5b21b6
+  style G4 fill:#dcfce7,stroke:#22c55e,color:#166534
+    </pre>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> types</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> api</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div> context</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> components</div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Component Tree -->
+  <div class="panel" id="panel-1">
+    <h2>Component Tree</h2>
+    <p class="desc">런타임에서의 컴포넌트 렌더링 계층입니다. 부모가 자식을 렌더링하며, 주요 props를 표시합니다.</p>
+    <pre class="mermaid">
+flowchart TD
+  M["main.tsx StrictMode"]
+  A["App"]
+  P["NotesProvider"]
+  L["Layout"]
+  NL["NoteList"]
+  NE["NoteEditor"]
+  NI1["NoteItem"]
+  NI2["NoteItem x N"]
+
+  M --> A
+  A --> P
+  P --> L
+  L -->|sidebar| NL
+  L -->|main| NE
+  NL --> NI1
+  NL --> NI2
+
+  style M fill:#f1f5f9,stroke:#64748b,color:#334155
+  style A fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+  style P fill:#ede9fe,stroke:#8b5cf6,color:#5b21b6
+  style L fill:#f1f5f9,stroke:#64748b,color:#334155
+  style NL fill:#dcfce7,stroke:#22c55e,color:#166534
+  style NE fill:#dcfce7,stroke:#22c55e,color:#166534
+  style NI1 fill:#fef3c7,stroke:#f59e0b,color:#92400e
+  style NI2 fill:#fef3c7,stroke:#f59e0b,color:#92400e
+    </pre>
+  </div>
+
+  <!-- Tab 3: State Flow -->
+  <div class="panel" id="panel-2">
+    <h2>State Flow</h2>
+    <p class="desc">상태가 어디서 선언되고, 어떤 경로로 전달되는지 보여줍니다. 실선은 props 전달, 점선은 Context를 통한 전달입니다.</p>
+    <pre class="mermaid">
+flowchart LR
+  subgraph S1["App useState"]
+    s_noteId["selectedNoteId"]
+    s_creating["isCreating"]
+  end
+
+  subgraph S2["NotesProvider Context"]
+    s_notes["notes"]
+    s_loading["loading"]
+    s_err["err"]
+    fn_create["createNote"]
+    fn_update["updateNote"]
+    fn_delete["deleteNote"]
+  end
+
+  subgraph S3["NoteEditor useState"]
+    s_title["formTitle"]
+    s_content["formContent"]
+    s_saving["saving"]
+  end
+
+  subgraph S4["API"]
+    s_fetch["fetch localhost:3001"]
+  end
+
+  C_List["NoteList"]
+  C_Editor["NoteEditor"]
+
+  s_noteId -->|props| C_List
+  s_noteId -->|props| C_Editor
+  s_creating -->|props| C_Editor
+
+  s_notes -.->|useNotes| C_List
+  s_notes -.->|useNotes| C_Editor
+  s_loading -.->|useNotes| C_List
+  s_err -.->|useNotes| C_List
+
+  fn_create -.->|useNotes| C_Editor
+  fn_update -.->|useNotes| C_Editor
+  fn_delete -.->|useNotes| C_List
+
+  C_Editor --> s_title
+  C_Editor --> s_content
+  C_Editor --> s_saving
+
+  fn_create -->|call| s_fetch
+  fn_update -->|call| s_fetch
+  fn_delete -->|call| s_fetch
+  s_fetch -->|response| s_notes
+
+  style S1 fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+  style S2 fill:#ede9fe,stroke:#8b5cf6,color:#5b21b6
+  style S3 fill:#dcfce7,stroke:#22c55e,color:#166534
+  style S4 fill:#fef3c7,stroke:#f59e0b,color:#92400e
+  style C_List fill:#f1f5f9,stroke:#64748b,color:#334155
+  style C_Editor fill:#f1f5f9,stroke:#64748b,color:#334155
+    </pre>
+  </div>
+
+</div>
+
+<footer>Generated from src/ analysis &mdash; Notes App Architecture Viewer</footer>
+
+<script>
+  let currentTheme = 'default';
+
+  function showTab(index) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.panel').forEach((p, i) => {
+      p.classList.toggle('active', i === index);
+    });
+    renderActiveDiagram(index);
+  }
+
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+    document.querySelector('.theme-toggle').textContent = isDark ? 'Dark Mode' : 'Light Mode';
+    currentTheme = isDark ? 'default' : 'dark';
+    mermaid.initialize({ startOnLoad: false, theme: currentTheme, securityLevel: 'loose' });
+    const activeIndex = [...document.querySelectorAll('.panel')]
+      .findIndex(panel => panel.classList.contains('active'));
+    renderActiveDiagram(activeIndex);
+  }
+
+  async function renderActiveDiagram(index) {
+    const panel = document.querySelector(`#panel-${index}`);
+    const el = panel.querySelector('.mermaid');
+    if (!el) return;
+    const source = el.getAttribute('data-source');
+    if (source) {
+      el.removeAttribute('data-processed');
+      el.innerHTML = source;
+    }
+    await mermaid.run({ nodes: [el] });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.querySelectorAll('.mermaid').forEach(el => {
+      el.setAttribute('data-source', el.textContent.trim());
+    });
+    mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+    await renderActiveDiagram(0);
+  });
+</script>
+
+</body>
+</html>
