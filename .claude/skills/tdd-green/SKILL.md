@@ -10,7 +10,7 @@ TDD Red 단계에서 작성된 테스트를 Green으로 만드는 것이 목적�
 
 ## 입력
 
-`$ARGUMENTS` = issues.md 내부 이슈 번호 (예: `1`)
+`$ARGUMENTS` = GitHub 이슈 번호 (예: `6`)
 
 ## 핵심 원칙
 

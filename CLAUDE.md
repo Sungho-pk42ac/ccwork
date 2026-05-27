@@ -91,7 +91,7 @@ App (selectedNoteId, isCreating 상태 관리)
 
 ## TDD 이슈 사이클
 
-새 이슈 작업 시 다음 순서를 따른다:
+새 이슈 작업 시 다음 순서를 따른다. **N = GitHub 이슈 번호** (내부 문서 번호가 아님).
 
 1. `/test-scenarios N` — 시그니처 + 시나리오 (skill)
 2. `/tdd-red N` — 실패 테스트 작성 (skill)

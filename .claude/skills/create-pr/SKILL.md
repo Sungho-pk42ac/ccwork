@@ -7,22 +7,28 @@ description: "PR 생성을 자동화한다. /create-pr로 명시 호출하거나
 
 현재 브랜치의 변경사항을 분석해 PR 초안을 만들고, E2E 게이트를 통과한 뒤 PR을 생성한다.
 
+## 입력 (선택)
+
+- `$BASE_BRANCH`: PR base 브랜치. tdd-loop에서 호출 시 `$SPEC_BRANCH`가 전달된다. 미지정 시 기본값 `main`.
+
 ---
 
 ## Step 1. 브랜치 컨텍스트 수집
+
+base 브랜치를 결정한다: `$BASE_BRANCH`가 전달되었으면 해당 값, 없으면 `main`.
 
 ```bash
 # 현재 브랜치 확인
 git branch --show-current
 
-# main 대비 커밋 목록
-git log main..HEAD --oneline
+# base 대비 커밋 목록
+git log {base}..HEAD --oneline
 
 # 변경 파일 요약
-git diff main..HEAD --stat
+git diff {base}..HEAD --stat
 
 # 변경된 코드 전체 diff (컨텍스트 파악용)
-git diff main..HEAD
+git diff {base}..HEAD
 ```
 
 브랜치 이름이 `feature/tag-xxx` 형태면 관련 GitHub 이슈 번호를 추론한다:
@@ -53,7 +59,7 @@ refactor(hooks): useTags 상태 관리 분리
 
 ### 본문 구조
 
-```markdown
+````markdown
 ## 개요
 
 {변경의 목적과 배경을 2–3문장으로 요약}
@@ -74,13 +80,16 @@ refactor(hooks): useTags 상태 관리 분리
 npm run test:e2e   # E2E 전체
 npm test           # 단위 테스트 전체
 ```
+````
 
 ## 관련 이슈
 
 closes #{N}
 
 ---
+
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
 ```
 
 > PR 본문 마지막 줄은 항상 `🤖 Generated with [Claude Code](https://claude.com/claude-code)` 로 끝난다.
@@ -92,6 +101,7 @@ closes #{N}
 초안을 아래 형식으로 출력하고 확인을 요청한다:
 
 ```
+
 ────────────────────────────────────────
 📋 PR 초안
 ────────────────────────────────────────
@@ -105,7 +115,8 @@ closes #{N}
 ② 제목 수정
 ③ 본문 수정
 ④ 취소
-```
+
+````
 
 - **② 또는 ③** 선택 시: 수정 내용을 입력받아 초안을 업데이트한 뒤 다시 Step 3을 반복한다.
 - **④ 취소** 시: 즉시 종료. 작업한 내용은 변경하지 않는다.
@@ -121,7 +132,7 @@ CI와 동일한 범위를 로컬에서 실행한다.
 ```bash
 # ci.yml e2e job의 run: 값을 그대로 실행 (현재 예시)
 npx playwright test e2e/notes.spec.ts
-```
+````
 
 > **왜 ci.yml을 읽는가**: Red 상태(UI 미구현)인 스펙 파일이 있을 경우, CI는 해당 파일을 제외하고 안정된 테스트만 실행한다. 로컬 게이트도 CI와 동일 범위여야 "CI 통과 = 로컬 게이트 통과"가 일관된다. 태그 UI 구현 완료 후 ci.yml에서 파일 지정을 제거하면 이 스킬도 자동으로 전체 범위를 실행하게 된다.
 
@@ -188,7 +199,7 @@ push 성공 후 PR을 생성한다:
 gh pr create \
   --title "{승인된 PR 제목}" \
   --body "{승인된 PR 본문}" \
-  --base main
+  --base {base}
 ```
 
 ### 성공 보고
@@ -199,7 +210,7 @@ gh pr create \
 ────────────────────────────────────────
 제목 : feat(tag): useTags 훅 및 태그 유틸 구현 (closes #5)
 URL  : https://github.com/owner/repo/pull/N
-브랜치: feature/tag-xxx → main
+브랜치: feature/tag-xxx → {base}
 ────────────────────────────────────────
 ```
 
@@ -207,14 +218,14 @@ URL  : https://github.com/owner/repo/pull/N
 
 ## 프로젝트 규칙 (자동 적용)
 
-| 항목 | 규칙 |
-|------|------|
-| PR base 브랜치 | `main` |
+| 항목           | 규칙                                                              |
+| -------------- | ----------------------------------------------------------------- |
+| PR base 브랜치 | `$BASE_BRANCH` (기본값: `main`, tdd-loop에서 전달 시 해당 브랜치) |
 | 본문 마지막 줄 | `🤖 Generated with [Claude Code](https://claude.com/claude-code)` |
-| E2E 게이트 | `npm run test:e2e` — 실패 시 PR 생성 금지 |
-| E2E 코드 수정 | **절대 금지** — 테스트 코드로 실패를 우회하는 것은 근본 원인 회피 |
-| 커밋 형식 | Conventional Commits (`feat/fix/refactor/docs/chore/test/style`) |
-| 이슈 연결 | 제목 또는 본문에 `closes #N` 포함 |
+| E2E 게이트     | `npm run test:e2e` — 실패 시 PR 생성 금지                         |
+| E2E 코드 수정  | **절대 금지** — 테스트 코드로 실패를 우회하는 것은 근본 원인 회피 |
+| 커밋 형식      | Conventional Commits (`feat/fix/refactor/docs/chore/test/style`)  |
+| 이슈 연결      | 제목 또는 본문에 `closes #N` 포함                                 |
 
 ## 절대 금지
 
