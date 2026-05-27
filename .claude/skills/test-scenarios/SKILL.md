@@ -10,7 +10,7 @@ description: "이슈 단위로 함수/컴포넌트 시그니처를 확정하고 
 
 ## 입력
 
-`$ARGUMENTS` = GitHub 이슈 번호 (예: `3`)
+`$ARGUMENTS` = GitHub 이슈 번호 (예: `6`). 파일 경로에 직접 사용된다: `docs/features/tag/issue-{$ARGUMENTS}.md`
 
 ## 실행 순서
 
@@ -80,8 +80,7 @@ AskUserQuestion으로 "승인/수정 요청" 중 선택을 받는다.
 
 ### Step 3. 시그니처 기록
 
-승인된 시그니처를 `docs/features/tag/issue-{N}.md` 파일 상단에 기록한다.
-N은 이슈 문서 내부 번호(issues.md의 #1~#6)이며, $ARGUMENTS의 GitHub 이슈 번호와 매핑한다.
+승인된 시그니처를 `docs/features/tag/issue-{$ARGUMENTS}.md` 파일 상단에 기록한다.
 
 파일이 없으면 새로 생성한다. 형식:
 
@@ -132,7 +131,7 @@ N은 이슈 문서 내부 번호(issues.md의 #1~#6)이며, $ARGUMENTS의 GitHub
 
 ### Step 5. 시나리오 기록
 
-도출된 시나리오를 `docs/features/tag/issue-{N}.md` 하단에 추가한다.
+도출된 시나리오를 `docs/features/tag/issue-{$ARGUMENTS}.md` 하단에 추가한다.
 
 ```markdown
 ## 테스트 시나리오
@@ -178,7 +177,7 @@ GitHub Issue의 AC 항목과 시나리오를 대조한다.
 Step 4~6에서 도출한 전체 시나리오와 AC 커버리지 대조표를 개발자에게 보여주고
 AskUserQuestion으로 승인을 받는다.
 
-승인 시: `docs/features/tag/issue-{N}.md`에 최종 기록하고 완료를 알린다.
+승인 시: `docs/features/tag/issue-{$ARGUMENTS}.md`에 최종 기록하고 완료를 알린다.
 수정 요청 시: 피드백을 반영하여 Step 4부터 다시 진행한다.
 
 **승인 전까지 절대 다음 작업(테스트 코드 작성, 구현 등)으로 넘어가지 않는다.**

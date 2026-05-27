@@ -10,7 +10,7 @@ Refactor 완료 후 커밋 전, **타입 오류와 보안 취약점**을 점검�
 
 ## 입력
 
-`$ARGUMENTS` = issues.md 내부 이슈 번호 (예: `1`)
+`$ARGUMENTS` = GitHub 이슈 번호 (예: `6`)
 
 ## 왜 커밋 전 점검인가
 

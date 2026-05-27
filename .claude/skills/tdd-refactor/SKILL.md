@@ -10,7 +10,7 @@ Green 단계에서 "일단 동작하게" 만든 코드를 "잘 동작하게" 다
 
 ## 입력
 
-`$ARGUMENTS` = issues.md 내부 이슈 번호 (예: `1`)
+`$ARGUMENTS` = GitHub 이슈 번호 (예: `6`)
 
 ## 핵심 원칙
 
