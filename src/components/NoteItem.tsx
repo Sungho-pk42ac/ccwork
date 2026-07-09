@@ -7,6 +7,7 @@ interface NoteItemProps {
   onDelete: (id: string) => void;
 }
 
+/** 개별 노트 카드 — 제목, 내용 미리보기, 태그 칩, 날짜를 읽기 전용으로 표시 */
 export function NoteItem({ note, isSelected, onSelect, onDelete }: NoteItemProps) {
   return (
     <div
@@ -36,12 +37,12 @@ export function NoteItem({ note, isSelected, onSelect, onDelete }: NoteItemProps
       </p>
       {note.tags && note.tags.length > 0 && (
         <div className="flex flex-wrap gap-[0.35rem] mt-2">
-          {note.tags.map((tag) => (
+          {note.tags.map((tag, index) => (
             <span
-              key={tag}
+              key={`${tag}-${index}`}
               className="note-label inline-flex items-center bg-[#dbe4e7] text-[#586064] rounded-full px-[0.5rem] py-[0.1rem] text-[0.65rem]"
             >
-              <span>{tag}</span>
+              {tag}
             </span>
           ))}
         </div>
